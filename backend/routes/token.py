@@ -8,7 +8,7 @@ router = APIRouter(prefix="/token", tags=["Token"])
 
 @router.post("/", response_model=TokenResponse)
 async def create_token(request: TokenRequest):
-    return create_access_token(
+    return await create_access_token(
         identity=request.identity,
         room_name=request.room_name,
     )

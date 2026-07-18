@@ -1,4 +1,3 @@
-import os
 from datetime import timedelta
 
 from livekit import api
@@ -9,10 +8,15 @@ from config import (
     LIVEKIT_URL,
 )
 
+AGENT_NAME = "Laziza"
 
-def create_access_token(identity: str, room_name: str) -> dict:
+
+async def create_access_token(identity: str, room_name: str) -> dict:
     token = (
-        api.AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
+        api.AccessToken(
+            LIVEKIT_API_KEY,
+            LIVEKIT_API_SECRET,
+        )
         .with_identity(identity)
         .with_name(identity)
         .with_grants(
@@ -23,6 +27,22 @@ def create_access_token(identity: str, room_name: str) -> dict:
         )
         .to_jwt()
     )
+
+    lkapi = api.LiveKitAPI(
+        url=LIVEKIT_URL,
+        api_key=LIVEKIT_API_KEY,
+        api_secret=LIVEKIT_API_SECRET,
+    )
+
+    try:
+        await lkapi.agent_dispatch.create_dispatch(
+            api.CreateAgentDispatchRequest(
+                agent_name=AGENT_NAME,
+                room=room_name,
+            )
+        )
+    finally:
+        await lkapi.aclose()
 
     return {
         "success": True,
